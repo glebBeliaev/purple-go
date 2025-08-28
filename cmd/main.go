@@ -2,13 +2,18 @@ package main
 
 import (
 	"fmt"
-	"http/http/handler"
+	"http/configs"
+	"http/internal/auth"
+
 	"net/http"
 )
 
 func main() {
+	conf := configs.LoadConfig()
 	router := http.NewServeMux()
-	handler.NewHelloHandler(router)
+	auth.NewAuthHandler(router, auth.AuthHandlerDeps{
+		Config: conf,
+	})
 
 	server := http.Server{
 		Addr:    ":8081",
@@ -17,8 +22,4 @@ func main() {
 
 	fmt.Println("server started at localhost:8081")
 	server.ListenAndServe()
-}
-
-func hello(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("hello")
 }
