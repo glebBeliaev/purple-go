@@ -17,8 +17,8 @@ func NewAuthHandler(router *http.ServeMux, deps VerifyHandlerDeps) {
 	handler := &VerifyHandler{
 		Config: deps.Config}
 
-	router.HandleFunc("POST /auth/send", handler.Send())
-	router.HandleFunc("GET /auth/verify", handler.Verify())
+	router.HandleFunc("POST /send", handler.Send())
+	router.HandleFunc("GET /verify/{hash}", handler.Verify())
 }
 
 func (handler *VerifyHandler) Send() http.HandlerFunc {
