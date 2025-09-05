@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"http/configs"
-	"http/internal/auth"
+	"http/learning/configs"
+	"http/learning/internal/auth"
 
 	"net/http"
 )

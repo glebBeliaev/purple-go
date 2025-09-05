@@ -3,7 +3,7 @@ package auth
 import (
 	"encoding/json"
 	"fmt"
-	"http/configs"
+	"http/learning/configs"
 	"net/http"
 )
 
