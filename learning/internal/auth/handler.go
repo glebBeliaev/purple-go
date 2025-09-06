@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"http/learning/configs"
+	"http/learning/pkg/res"
 	"net/http"
 )
 
@@ -24,13 +25,18 @@ func NewAuthHandler(router *http.ServeMux, deps AuthHandlerDeps) {
 
 func (handler *AuthHandler) Login() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("Login")
-		res := LoginPayload{
+
+		var payload LoginRequest
+		err := json.NewDecoder(r.Body).Decode(&payload)
+		if err != nil {
+			res.Json(w, err, http.StatusBadRequest)
+		}
+		fmt.Println(payload)
+
+		data := LoginPayload{
 			Token: handler.Config.Auth.Token,
 		}
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(201)
-		json.NewEncoder(w).Encode(res)
+		res.Json(w, data, http.StatusOK)
 	}
 }
 

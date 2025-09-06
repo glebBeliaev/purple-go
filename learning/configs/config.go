@@ -21,7 +21,7 @@ type AuthConfig struct {
 }
 
 func LoadConfig() *Config {
-	err := godotenv.Load()
+	err := godotenv.Load("learning/.env")
 	if err != nil {
 		log.Println("Error loading .env file, using defaults")
 	}
