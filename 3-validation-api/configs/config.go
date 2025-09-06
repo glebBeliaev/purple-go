@@ -8,16 +8,13 @@ import (
 )
 
 type Config struct {
-	Db   DbConfig
-	Auth AuthConfig
+	Mail MailConfig
 }
 
-type DbConfig struct {
-	Dsn string
-}
-
-type AuthConfig struct {
-	Token string
+type MailConfig struct {
+	SMTP     string
+	Adress   string
+	Password string
 }
 
 func LoadConfig() *Config {
@@ -26,11 +23,10 @@ func LoadConfig() *Config {
 		log.Println("Error loading .env file, using defaults")
 	}
 	return &Config{
-		Db: DbConfig{
-			Dsn: os.Getenv("DSN"),
-		},
-		Auth: AuthConfig{
-			Token: os.Getenv("TOKEN"),
+		Mail: MailConfig{
+			SMTP:     os.Getenv("EMAIL_SMTP"),
+			Adress:   os.Getenv("EMAIL_ADRESS"),
+			Password: os.Getenv("EMAIL_PASSWORD"),
 		},
 	}
 }
