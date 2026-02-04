@@ -1,9 +1,9 @@
 package auth
 
 import (
-	"encoding/json"
 	"fmt"
 	"http/configs"
+	"http/pkg/response"
 	"net/http"
 )
 
@@ -25,12 +25,10 @@ func NewAuthHandler(router *http.ServeMux, deps AuthHandlerDeps) {
 func (handler *AuthHandler) Login() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Login")
-		res := LoginPayload{
+		data := LoginPayload{
 			Token: handler.Config.Auth.Token,
 		}
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(201)
-		json.NewEncoder(w).Encode(res)
+		response.Json(w, data, http.StatusOK)
 	}
 }
 
