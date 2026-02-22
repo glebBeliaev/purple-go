@@ -5,6 +5,8 @@ import (
 	"http/4-order-api/pkg/res"
 	"net/http"
 	"strconv"
+
+	"gorm.io/gorm"
 )
 
 type ProductHandler struct {
@@ -24,6 +26,7 @@ func NewProductHandler(router *http.ServeMux, deps ProductHandlerDeps) {
 	router.HandleFunc("PATCH /product/{id}", handler.Update())
 	router.HandleFunc("DELETE /product/{id}", handler.Delete())
 	router.HandleFunc("GET /product/", handler.GetAll())
+	router.HandleFunc("GET /product/{id}", handler.GetByID())
 }
 
 func (handler *ProductHandler) Create() http.HandlerFunc {
@@ -108,5 +111,29 @@ func (handler *ProductHandler) GetAll() http.HandlerFunc {
 		}
 
 		res.Json(w, products, http.StatusOK)
+	}
+}
+
+func (handler *ProductHandler) GetByID() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		idStr := r.PathValue("id")
+
+		id64, err := strconv.ParseUint(idStr, 10, 32)
+		if err != nil {
+			http.Error(w, "invalid id", http.StatusBadRequest)
+			return
+		}
+
+		product, err := handler.ProductRepository.GetByID(uint(id64))
+		if err != nil {
+			if err == gorm.ErrRecordNotFound {
+				http.Error(w, "product not found", http.StatusNotFound)
+				return
+			}
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		res.Json(w, product, http.StatusOK)
 	}
 }
