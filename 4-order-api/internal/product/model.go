@@ -13,11 +13,11 @@ type Product struct {
 	Price       float64        `json:"price"`
 }
 
-func NewProduct(name string, description string, price float64) *Product {
+func NewProduct(name, description string, images pq.StringArray, price float64) *Product {
 	return &Product{
 		Name:        name,
 		Description: description,
-		Images:      pq.StringArray{},
+		Images:      images,
 		Price:       price,
 	}
 }
