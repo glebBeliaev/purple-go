@@ -5,6 +5,7 @@ import (
 	"http/learning/configs"
 	"http/learning/internal/auth"
 	"http/learning/internal/link"
+	"http/learning/internal/user"
 	"http/learning/pkg/db"
 
 	"net/http"
@@ -14,12 +15,17 @@ func main() {
 	conf := configs.LoadConfig()
 	db := db.NewDb(conf)
 	router := http.NewServeMux()
-
+	//Repositories
 	linkRepository := link.NewLinkRepository(db)
+	userRepository := user.NewUserRepository(db)
+
+	//Services
+	authService := auth.NewAuthService(userRepository)
 
 	//Handlers
 	auth.NewAuthHandler(router, auth.AuthHandlerDeps{
-		Config: conf,
+		Config:      conf,
+		AuthService: authService,
 	})
 	link.NewLinkHandler(router, link.LinkHandlerDeps{
 		LinkRepository: linkRepository,
