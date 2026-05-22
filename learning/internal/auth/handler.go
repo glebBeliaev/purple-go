@@ -1,23 +1,27 @@
 package auth
 
 import (
-	"fmt"
 	"http/learning/configs"
+	"http/learning/pkg/jwt"
 	"http/learning/pkg/request"
 	"http/learning/pkg/res"
 	"net/http"
 )
 
 type AuthHandler struct {
-	Config *configs.Config
+	*configs.Config
+	*AuthService
 }
 type AuthHandlerDeps struct {
 	*configs.Config
+	*AuthService
 }
 
 func NewAuthHandler(router *http.ServeMux, deps AuthHandlerDeps) {
 	handler := &AuthHandler{
-		Config: deps.Config}
+		Config:      deps.Config,
+		AuthService: deps.AuthService,
+	}
 
 	router.HandleFunc("POST /auth/login", handler.Login())
 	router.HandleFunc("POST /auth/register", handler.Register())
@@ -30,11 +34,18 @@ func (handler *AuthHandler) Login() http.HandlerFunc {
 		if err != nil {
 			return
 		}
-
-		fmt.Println(payload)
-
+		email, err := handler.AuthService.Login(payload.Email, payload.Password)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusUnauthorized)
+			return
+		}
+		token, err := jwt.NewJWT(handler.Config.Auth.Secret).Create(email)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 		data := LoginResponse{
-			Token: handler.Config.Auth.Token,
+			Token: token,
 		}
 		res.Json(w, data, http.StatusOK)
 	}
@@ -43,11 +54,25 @@ func (handler *AuthHandler) Login() http.HandlerFunc {
 func (handler *AuthHandler) Register() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		payload, err := request.HandleBody[RegisterRequest](&w, r)
+		body, err := request.HandleBody[RegisterRequest](&w, r)
 		if err != nil {
 			return
 		}
 
-		fmt.Println(payload)
+		email, err := handler.AuthService.Register(body.Email, body.Password, body.Name)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusUnauthorized)
+			return
+		}
+		token, err := jwt.NewJWT(handler.Config.Auth.Secret).Create(email)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		data := RegisterResponse{
+			Token: token,
+		}
+		res.Json(w, data, http.StatusOK)
+
 	}
 }
